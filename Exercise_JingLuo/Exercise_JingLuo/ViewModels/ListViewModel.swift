@@ -32,9 +32,13 @@ class ListViewModel {
             fatalError("Must init an APIService")
         }
         
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
         service.fetchFactsInfo(APIConfig.facts)
             .observeOn(concurrentScheduler)
             .subscribe(onNext: { status in
+                DispatchQueue.main.async {
+                    UIApplication.shared.isNetworkActivityIndicatorVisible = false
+                }
                 switch status {
                 case .success(let content):
                     self.content.value = content as? Content

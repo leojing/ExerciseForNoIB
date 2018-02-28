@@ -14,8 +14,10 @@ import ObjectMapper
 
 class APIClient: APIService {
     
-    private static let parseInfoFailed = "Parse Content information failed. Please try again."
-    private static let emptyData = "Response data is empty. Please try again."
+    enum AlertMessage {
+        static let parseInfoFailed = "Parse Content information failed. Please try again."
+        static let emptyData = "Response data is empty. Please try again."
+    }
 
     func fetchFactsInfo(_ config: APIConfig) -> Observable<RequestStatus> {
         return Observable<RequestStatus>.create { observable -> Disposable in
@@ -24,7 +26,7 @@ class APIClient: APIService {
                     if let error = error {
                         observable.onNext(RequestStatus.fail(error))
                     } else {
-                        observable.onNext(RequestStatus.fail(RequestError(APIClient.parseInfoFailed)))
+                        observable.onNext(RequestStatus.fail(RequestError(AlertMessage.parseInfoFailed)))
                     }
                     observable.onCompleted()
                     return
@@ -33,7 +35,7 @@ class APIClient: APIService {
                     observable.onNext(RequestStatus.success(content))
                     observable.onCompleted()
                 } else {
-                    observable.onNext(RequestStatus.fail(RequestError(APIClient.parseInfoFailed)))
+                    observable.onNext(RequestStatus.fail(RequestError(AlertMessage.parseInfoFailed)))
                     observable.onCompleted()
                 }
             })
@@ -69,7 +71,7 @@ class APIClient: APIService {
         let data = jsonStr?.data(using: .utf8)
         do {
             guard let data = data else {
-                completionHandler(nil, RequestError(APIClient.emptyData))
+                completionHandler(nil, RequestError(AlertMessage.emptyData))
                 return
             }
             
@@ -80,7 +82,7 @@ class APIClient: APIService {
             }
             completionHandler(json, nil)
         } catch {
-            completionHandler(nil, RequestError(APIClient.parseInfoFailed))
+            completionHandler(nil, RequestError(AlertMessage.parseInfoFailed))
         }
     }
     

@@ -41,6 +41,7 @@ class ListViewController: UIViewController {
         myTableView.separatorStyle = .none
         myTableView.estimatedRowHeight = 100
         myTableView.rowHeight = UITableViewAutomaticDimension
+        myTableView.translatesAutoresizingMaskIntoConstraints = false
         myTableView.register(DetailTableViewCell.self, forCellReuseIdentifier: DetailTableViewCell.reuseId())
         view.addSubview(myTableView)
         
