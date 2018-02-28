@@ -37,11 +37,11 @@ class ListViewController: UIViewController {
     }
     
     private func setUpTableView() {
-        myTableView = UITableView(frame: view.bounds, style: .plain)
+        myTableView = UITableView(frame: .zero, style: .plain)
         myTableView.separatorStyle = .none
-        myTableView.estimatedRowHeight = 80
+        myTableView.estimatedRowHeight = 100
         myTableView.rowHeight = UITableViewAutomaticDimension
-        myTableView.register(DetailTableViewCell.nib(), forCellReuseIdentifier: DetailTableViewCell.reuseId())
+        myTableView.register(DetailTableViewCell.self, forCellReuseIdentifier: DetailTableViewCell.reuseId())
         view.addSubview(myTableView)
         
         myTableView.mas_makeConstraints { make in
@@ -49,7 +49,6 @@ class ListViewController: UIViewController {
             make?.bottom.equalTo()(self.view.mas_bottom)?.with().offset()(0)
             make?.right.equalTo()(self.view.mas_right)?.with().offset()(0)
             make?.left.equalTo()(self.view.mas_left)?.with().offset()(0)
-            return()
         }
     }
     
