@@ -9,6 +9,7 @@
 import UIKit
 import RxSwift
 import RxCocoa
+import Masonry
 
 class ListViewController: UIViewController {
 
@@ -29,35 +30,53 @@ class ListViewController: UIViewController {
     }
     
     fileprivate func setupUI() {
-        myTableView = UITableView(frame: view.bounds, style: .grouped)
-        myTableView.register(DetailTableViewCell.self, forCellReuseIdentifier: DetailTableViewCell.reuseId())
+        let refreshButtonItem = UIBarButtonItem(title: "Refresh", style: .plain, target: self, action: #selector(refreshAction))
+        navigationItem.rightBarButtonItem = refreshButtonItem
+        
+        setUpTableView()
+    }
+    
+    private func setUpTableView() {
+        myTableView = UITableView(frame: view.bounds, style: .plain)
+        myTableView.separatorStyle = .none
+        myTableView.estimatedRowHeight = 80
+        myTableView.rowHeight = UITableViewAutomaticDimension
+        myTableView.register(DetailTableViewCell.nib(), forCellReuseIdentifier: DetailTableViewCell.reuseId())
         view.addSubview(myTableView)
+        
+        myTableView.mas_makeConstraints { make in
+            make?.top.equalTo()(self.view.mas_top)?.with().offset()(0)
+            make?.bottom.equalTo()(self.view.mas_bottom)?.with().offset()(0)
+            make?.right.equalTo()(self.view.mas_right)?.with().offset()(0)
+            make?.left.equalTo()(self.view.mas_left)?.with().offset()(0)
+            return()
+        }
     }
     
     fileprivate func setupViewModelBinds() {
         viewModel?.title.asObservable()
             .subscribe(onNext: { title in
-                self.navigationController?.title = title
+                self.title = title
             }, onError: nil, onCompleted: nil, onDisposed: nil)
         .disposed(by: disposeBag)
         
         viewModel?.listData.asObservable()
             .bind(to: myTableView.rx.items(cellIdentifier: DetailTableViewCell.reuseId(), cellType: DetailTableViewCell.self)) { (row, element, cell) in
                 cell.configureCell(element)
-                //DetailCellDisplayModel(title: element.title, imageURL: element.imageHref, description: element.description)
             }
             .disposed(by: disposeBag)
         
         // MARK: show error message
         viewModel?.alertMessage.asObservable()
+            .filter{$0 != nil}
             .subscribe(onNext: { errorMessage in
-                self.showAlert(errorMessage)
+                self.showAlert(errorMessage!)
             }, onError: nil, onCompleted: nil, onDisposed: nil)
             .disposed(by: disposeBag)
     }
     
     // MARK: Actions
-    fileprivate func refreshAction() {
+    @objc fileprivate func refreshAction() {
         viewModel?.refreshData()
     }
     

@@ -18,7 +18,7 @@ class ListViewModel {
     var content = Variable<Content?>(nil)
     var listData = Variable<[Row]>([])
     var title = Variable<String>("")
-    var alertMessage = Variable<String>("Error")
+    var alertMessage = Variable<String?>(nil)
     
     init(_ apiService: APIService?) {
         bindContentData()
@@ -39,7 +39,7 @@ class ListViewModel {
                     self.content.value = content as? Content
                     
                 case .fail(let error):
-                    let errorMessage = error.errorDescription ?? "Faild to load remote data"
+                    let errorMessage = error.errorDescription ?? "Faild to load remote data."
                     self.alertMessage.value = errorMessage
                 }
             }, onError: nil, onCompleted: nil, onDisposed: nil)

@@ -64,7 +64,12 @@ class APIClient: APIService {
         let jsonStr = String.init(data: response as! Data, encoding: String.Encoding.ascii)
         let data = jsonStr?.data(using: .utf8)
         do {
-            guard let json = try JSONSerialization.jsonObject(with: data!, options: .allowFragments) as? [String: Any] else {
+            guard let data = data else {
+                completionHandler(nil, RequestError("Response data is empty."))
+                return
+            }
+            
+            guard let json = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any] else {
                 NSLog("Error: \(String(describing: response.debugDescription))")
                 completionHandler(nil, RequestError(response.debugDescription))
                 return
