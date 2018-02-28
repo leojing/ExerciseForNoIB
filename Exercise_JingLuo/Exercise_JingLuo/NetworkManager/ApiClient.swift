@@ -14,6 +14,9 @@ import ObjectMapper
 
 class APIClient: APIService {
     
+    private static let parseInfoFailed = "Parse Content information failed. Please try again."
+    private static let emptyData = "Response data is empty. Please try again."
+
     func fetchFactsInfo(_ config: APIConfig) -> Observable<RequestStatus> {
         return Observable<RequestStatus>.create { observable -> Disposable in
             self.networkRequest(config, completionHandler: { (json, error) in
@@ -21,7 +24,7 @@ class APIClient: APIService {
                     if let error = error {
                         observable.onNext(RequestStatus.fail(error))
                     } else {
-                        observable.onNext(RequestStatus.fail(RequestError("Parse Content information failed.")))
+                        observable.onNext(RequestStatus.fail(RequestError(APIClient.parseInfoFailed)))
                     }
                     observable.onCompleted()
                     return
@@ -30,7 +33,7 @@ class APIClient: APIService {
                     observable.onNext(RequestStatus.success(content))
                     observable.onCompleted()
                 } else {
-                    observable.onNext(RequestStatus.fail(RequestError("Parse Content information failed.")))
+                    observable.onNext(RequestStatus.fail(RequestError(APIClient.parseInfoFailed)))
                     observable.onCompleted()
                 }
             })
@@ -40,32 +43,33 @@ class APIClient: APIService {
     
     // MARK: conform to APIService protocol. For new class inherit from APIClient class, you can overwrite this function and use any other HTTP networking libraries. Like in Unit test, I create MockAPIClient which request network by load local JSON file.
     func networkRequest(_ config: APIConfig, completionHandler: @escaping ((_ jsonResponse: [String: Any]?, _ error: RequestError?) -> Void)) {
-        if let isConnected = Connectivity.isConnectedToInternet, isConnected {
-            return completionHandler(nil, RequestError("Internet Not Available"))
-        }
-        
         let manager = AFHTTPSessionManager()
+    
         manager.requestSerializer = AFHTTPRequestSerializer()
         manager.responseSerializer = AFHTTPResponseSerializer()
+        manager.requestSerializer.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
         
         let url = config.getFullURL()
         if config.method == "GET" {
-            manager.get(url.absoluteString, parameters: config.parameters, progress: nil, success: { (task, response) in
-                self.networkResponseSuccess(task, response, completionHandler)
-            }, failure: { (task: URLSessionDataTask?, error) in
-                completionHandler(nil, RequestError((error as NSError).localizedDescription))
-                return
-            })
+            DispatchQueue.global().async {
+                NSLog("current thread: %@, in file: %@, function: %@", Thread.current, #file, #function)
+                manager.get(url.absoluteString, parameters: config.parameters, progress: nil, success: { (task, response) in
+                    self.networkResponseSuccess(task, response, completionHandler)
+                }, failure: { (task: URLSessionDataTask?, error) in
+                    self.networkResponseFailure(task, error, completionHandler)
+                    return
+                })
+            }
         }
-        // Here you can add other request task like POST, DELET... based on APIConfig's method value
+        // Here you can add other request task like POST, DELETE... based on APIConfig's method value
     }
     
     fileprivate func networkResponseSuccess(_ task: URLSessionDataTask, _ response: Any?, _ completionHandler: ((_ jsonResponse: [String: Any]?, _ error: RequestError?) -> Void)) {
-        let jsonStr = String.init(data: response as! Data, encoding: String.Encoding.ascii)
+        let jsonStr = String(data: response as! Data, encoding: String.Encoding.ascii)
         let data = jsonStr?.data(using: .utf8)
         do {
             guard let data = data else {
-                completionHandler(nil, RequestError("Response data is empty."))
+                completionHandler(nil, RequestError(APIClient.emptyData))
                 return
             }
             
@@ -76,14 +80,11 @@ class APIClient: APIService {
             }
             completionHandler(json, nil)
         } catch {
-            completionHandler(nil, RequestError("Parse response data failed."))
+            completionHandler(nil, RequestError(APIClient.parseInfoFailed))
         }
     }
-}
-
-class Connectivity {
-    class var isConnectedToInternet: Bool? {
-        return AFNetworkReachabilityManager().isReachable
+    
+    fileprivate func networkResponseFailure(_ task: URLSessionDataTask?, _ error: Error, _ completionHandler: ((_ jsonResponse: [String: Any]?, _ error: RequestError?) -> Void)) {
+        completionHandler(nil, RequestError(error.localizedDescription))
     }
 }
-

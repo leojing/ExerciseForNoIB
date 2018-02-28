@@ -55,6 +55,7 @@ class ListViewController: UIViewController {
     
     fileprivate func setupViewModelBinds() {
         viewModel?.title.asObservable()
+            .observeOn(MainScheduler())
             .subscribe(onNext: { title in
                 self.title = title
             }, onError: nil, onCompleted: nil, onDisposed: nil)
@@ -62,6 +63,7 @@ class ListViewController: UIViewController {
         
         viewModel?.listData.asObservable()
             .bind(to: myTableView.rx.items(cellIdentifier: DetailTableViewCell.reuseId(), cellType: DetailTableViewCell.self)) { (row, element, cell) in
+                NSLog("current thread: %@, in file: %@, function: %@", Thread.current, #file, #function)
                 cell.configureCell(element)
             }
             .disposed(by: disposeBag)
