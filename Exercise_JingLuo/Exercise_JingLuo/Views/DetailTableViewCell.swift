@@ -29,12 +29,15 @@ class DetailTableViewCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
         titleLabel = UILabel()
+        titleLabel.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
         contentView.addSubview(titleLabel)
         
         displayImageView = UIImageView()
+        displayImageView.frame = CGRect(x: 40, y: 0, width: 40, height: 40)
         contentView.addSubview(displayImageView)
         
         descriptionLabel = UILabel()
+        descriptionLabel.frame = CGRect(x: 0, y: 40, width: 40, height: 40)
         contentView.addSubview(descriptionLabel)
     }
     
@@ -42,13 +45,13 @@ class DetailTableViewCell: UITableViewCell {
         return String(describing: self)
     }
     
-    func configureCell(_ model: DetailCellDisplayModel?) {
+    func configureCell(_ model: Row?) {
         guard let model = model else {
             return
         }
         
         titleLabel.text = model.title
-        if let imageurl = model.imageURL {
+        if let imageurl = model.imageHref as? String {
             displayImageView.kf.setImage(with: URL(string: imageurl))
         }
         descriptionLabel.text = model.description

@@ -82,7 +82,7 @@ extension APIConfig {
 }
 
 protocol APIService {
-    func fetchWeatherInfo(_ config: APIConfig) -> Observable<RequestStatus>
+    func fetchFactsInfo(_ config: APIConfig) -> Observable<RequestStatus>
     func networkRequest(_ config: APIConfig, completionHandler: @escaping ((_ jsonResponse: [String: Any]?, _ error: RequestError?) -> Void))
 }
 
