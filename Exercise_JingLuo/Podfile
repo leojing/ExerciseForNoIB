@@ -1,0 +1,21 @@
+source 'https://github.com/CocoaPods/Specs.git'
+    platform :ios, '9.0'
+use_frameworks!
+
+def shared_pods
+    pod 'RxSwift'
+    pod 'RxCocoa'
+    pod 'ObjectMapper'
+end
+
+target "Exercise_JingLuo" do
+    shared_pods
+    pod 'AFNetworking'
+    pod 'Kingfisher'
+    pod 'Masonry'
+end
+
+target "Exercise_JingLuoTests" do
+    shared_pods
+end
+
