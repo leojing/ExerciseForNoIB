@@ -67,6 +67,7 @@ class APIClient: APIService {
         if config.method == "GET" {
             DispatchQueue.global().async {
                 NSLog("current thread: %@, in file: %@, function: %@", Thread.current, #file, #function)
+                
                 manager.get(url.absoluteString, parameters: config.parameters, progress: nil, success: { (task, response) in
                     self.networkResponseSuccess(task, response, completionHandler)
                 }, failure: { (task: URLSessionDataTask?, error) in

@@ -66,6 +66,7 @@ class ListViewModel {
             .observeOn(concurrentScheduler)
             .subscribe(onNext: { content in
                 NSLog("current thread: %@, in file: %@, function: %@", Thread.current, #file, #function)
+                
                 // gain listData which is from content.rows and will show in UITableview.
                 if let listData = content?.rows {
                     self.listData.value = listData.filter {
