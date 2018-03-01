@@ -55,6 +55,8 @@ class APIClient: APIService {
     
     // MARK: conform to APIService protocol. For new class inherit from APIClient class, you can overwrite this function and use any other HTTP networking libraries. Like in Unit test, I create MockAPIClient which request network by load local JSON file.
     func networkRequest(_ config: APIConfig, completionHandler: @escaping CompletionHandler) {
+        URLCache.shared.removeAllCachedResponses()
+        
         let manager = AFHTTPSessionManager()
     
         // normally we prefer to set cache policy as cached, here for testing in different circumstances, set it as not cached.
