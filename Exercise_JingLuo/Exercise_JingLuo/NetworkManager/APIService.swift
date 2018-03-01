@@ -10,25 +10,31 @@ import Foundation
 import RxSwift
 import RxCocoa
 
+// MARK: - RequestStatus definition
 enum RequestStatus {
     case success(Any)
     case fail(RequestError)
 }
 
+// MARK: - RequestError definition
 struct RequestError : LocalizedError {
     
+    var statusCode: String? { return sCode }
     var errorDescription: String? { return mMsg }
     var failureReason: String? { return mMsg }
     var recoverySuggestion: String? { return "" }
     var helpAnchor: String? { return "" }
     
+    private var sCode : String
     private var mMsg : String
     
-    init(_ description: String) {
+    init(_ code: String, _ description: String) {
+        sCode = code
         mMsg = description
     }
 }
 
+// MARK: - APIConfig definition
 enum APIConfig  {
     case facts
 }
@@ -81,6 +87,7 @@ extension APIConfig {
     }
 }
 
+// MARK: - APIService protocol definition
 protocol APIService {
     func fetchFactsInfo(_ config: APIConfig) -> Observable<RequestStatus>
     func networkRequest(_ config: APIConfig, completionHandler: @escaping ((_ jsonResponse: [String: Any]?, _ error: RequestError?) -> Void))

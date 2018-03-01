@@ -556,6 +556,7 @@
 			baseConfigurationReference = F5F55CE4AC7050A65C653E14 /* Pods-Exercise_JingLuo.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = Exercise_JingLuo/Info.plist;
@@ -574,6 +575,7 @@
 			baseConfigurationReference = F1C0AABDF04F67F9001D1B3A /* Pods-Exercise_JingLuo.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = Exercise_JingLuo/Info.plist;

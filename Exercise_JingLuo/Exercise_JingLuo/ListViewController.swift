@@ -54,6 +54,7 @@ class ListViewController: UIViewController {
     }
     
     fileprivate func setupViewModelBinds() {
+        // update Title in Navigationbar
         viewModel?.title.asObservable()
             .observeOn(MainScheduler())
             .subscribe(onNext: { title in
@@ -61,6 +62,7 @@ class ListViewController: UIViewController {
             }, onError: nil, onCompleted: nil, onDisposed: nil)
         .disposed(by: disposeBag)
         
+        // load tableview cells
         viewModel?.listData.asObservable()
             .bind(to: myTableView.rx.items(cellIdentifier: DetailTableViewCell.reuseId(), cellType: DetailTableViewCell.self)) { (row, element, cell) in
                 NSLog("current thread: %@, in file: %@, function: %@", Thread.current, #file, #function)
@@ -68,7 +70,7 @@ class ListViewController: UIViewController {
             }
             .disposed(by: disposeBag)
         
-        // MARK: show error message
+        // show error message
         viewModel?.alertMessage.asObservable()
             .filter{$0 != nil}
             .subscribe(onNext: { errorMessage in

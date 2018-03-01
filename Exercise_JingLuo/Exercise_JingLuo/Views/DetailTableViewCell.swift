@@ -9,12 +9,6 @@
 import UIKit
 import Kingfisher
 
-struct DetailCellDisplayModel {
-    var title: String?
-    var imageURL: String?
-    var description: String?
-}
-
 class DetailTableViewCell: UITableViewCell {
     
     enum Constants {
@@ -28,14 +22,28 @@ class DetailTableViewCell: UITableViewCell {
     let descriptionLabel = UILabel()
     let lineView = UIView()
 
+    
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
+    }
+    
+    static func reuseId() -> String {
+        return String(describing: self)
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        titleLabel.text = nil
+        descriptionLabel.text = nil
+        displayImageView.image = UIImage(named: "default-placeholder")
     }
 
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
         titleLabel.font = UIFont.boldSystemFont(ofSize: 18)
+        titleLabel.contentMode = .left
         titleLabel.numberOfLines = 0
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(titleLabel)
@@ -43,7 +51,7 @@ class DetailTableViewCell: UITableViewCell {
         displayImageView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(displayImageView)
 
-        descriptionLabel.contentMode = .center
+        descriptionLabel.contentMode = .left
         descriptionLabel.numberOfLines = 0
         descriptionLabel.lineBreakMode = .byTruncatingTail
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -53,9 +61,12 @@ class DetailTableViewCell: UITableViewCell {
         lineView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(lineView)
         
+        self.translatesAutoresizingMaskIntoConstraints = false
+        
         setupConstraints()
     }
     
+    // MARK: Setup Constraints for all elements
     fileprivate func setupConstraints() {
         setupTitleLabelConstraints()
         setupDisplayImageViewConstraints()
@@ -99,37 +110,32 @@ class DetailTableViewCell: UITableViewCell {
         }
     }
     
-    static func reuseId() -> String {
-        return String(describing: self)
-    }
-    
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        
-        titleLabel.text = nil
-        descriptionLabel.text = nil
-        displayImageView.image = UIImage(named: "default-placeholder")
-    }
-    
+    // MARK: Configure Cell
     func configureCell(_ model: Row?) {
         guard let model = model else {
             return
         }
     
         titleLabel.text = model.title
-        if let imageurl = model.imageHref as? String {
-            displayImageView.kf.setImage(with: URL(string: imageurl.removingPercentEncoding!), placeholder: UIImage(named: "default-placeholder"), options: nil, progressBlock: nil, completionHandler: { (image, error, cacheType, url) in
-                if let image = image {
-                    self.displayImageView.image = image
-
-                    let newSize = self.displayImageView.resizeFrameWith(image, restrictedByWidth: Constants.defaultWidth)
-                    self.displayImageView.mas_makeConstraints({ make in
-                        make?.width.offset()(newSize.width)
-                        make?.height.offset()(newSize.height)
-                    })
-                }
-            })
-        }
         descriptionLabel.text = model.descriptionField
+
+        if let imageurl = model.imageHref as? String, let decodedUrl = imageurl.removingPercentEncoding {
+            displayImageView.kf.setImage(with: URL(string: decodedUrl),
+                                  placeholder: UIImage(named: "default-placeholder"),
+                                      options: nil,
+                                progressBlock: nil,
+                            completionHandler: { (image, error, cacheType, url) in
+                    if let image = image {
+                        self.displayImageView.image = image
+                        
+                        // Resize imageView by the image ratio, but seems reset constraints doesn't work ???
+                        let newSize = self.displayImageView.resizeFrameWith(image, restrictedByWidth: Constants.defaultWidth)
+                        self.displayImageView.mas_makeConstraints({ make in
+                            make?.width.offset()(newSize.width)
+                            make?.height.offset()(newSize.height)
+                        })
+                    }
+                })
+        }
     }
 }
