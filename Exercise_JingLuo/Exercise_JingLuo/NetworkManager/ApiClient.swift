@@ -73,7 +73,7 @@ class APIClient: APIService {
                 manager.get(url.absoluteString, parameters: config.parameters, progress: nil, success: { (task, response) in
                     self.networkResponseSuccess(task, response, completionHandler)
                 }, failure: { (task: URLSessionDataTask?, error) in
-                    return self.networkResponseFailure(task, error, completionHandler)
+                    self.networkResponseFailure(task, error, completionHandler)
                 })
             }
         }
@@ -82,7 +82,11 @@ class APIClient: APIService {
     
     // MARK: Parse response when request success
     fileprivate func networkResponseSuccess(_ task: URLSessionDataTask, _ response: Any?, _ completionHandler: CompletionHandler) {
-        let jsonStr = String(data: response as! Data, encoding: String.Encoding.ascii)
+        guard let responseData = response as? Data else {
+            return completionHandler(nil, RequestError(ResponseStatusCode.emptyData.rawValue, AlertMessage.emptyData))
+        }
+        
+        let jsonStr = String(data: responseData, encoding: String.Encoding.ascii)
         let data = jsonStr?.data(using: .utf8)
         do {
             guard let data = data else {

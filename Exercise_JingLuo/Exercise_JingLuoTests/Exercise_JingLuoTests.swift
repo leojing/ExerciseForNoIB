@@ -27,7 +27,7 @@ class Exercise_JingLuoTests: XCTestCase {
     }
     
     func testApiClientSuccess() {
-        viewModel = ListViewModel(MockApiClient())
+        viewModel = ListViewModel(MockAPIClient())
         
         viewModel?.title.asObservable()
             .observeOn(ConcurrentDispatchQueueScheduler(qos: .background))
@@ -45,7 +45,9 @@ class Exercise_JingLuoTests: XCTestCase {
     }
 
     func testApiClientEmpty() {
-        viewModel = ListViewModel(MockApiClient())
+        let mockApiClient = MockAPIClient()
+        mockApiClient.jsonFileName = .mockDataEmpty
+        viewModel = ListViewModel(mockApiClient)
         
         viewModel?.title.asObservable()
             .observeOn(ConcurrentDispatchQueueScheduler(qos: .background))
@@ -64,7 +66,7 @@ class Exercise_JingLuoTests: XCTestCase {
 }
 
 
-class MockApiClient: APIClient {
+class MockAPIClient: APIClient {
     
     enum JsonFileName: String {
         case mockData = "MockData"
