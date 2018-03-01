@@ -48,6 +48,7 @@ class DetailTableViewCell: UITableViewCell {
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(titleLabel)
 
+        displayImageView.image = UIImage(named: "default-placeholder")
         displayImageView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(displayImageView)
 
