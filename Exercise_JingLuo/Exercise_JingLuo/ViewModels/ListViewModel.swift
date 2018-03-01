@@ -14,18 +14,24 @@ class ListViewModel {
     
     let disposeBag = DisposeBag()
     private let concurrentScheduler = ConcurrentDispatchQueueScheduler(qos: .background)
-    private var networkService: APIService?
 
     var content = Variable<Content?>(nil)
     var listData = Variable<[Row]>([])
     var title = Variable<String>("")
     var alertMessage = Variable<String?>(nil)
     
+    var networkService: APIService?
+
     init(_ apiService: APIService?) {
-        bindContentData()
         
+        bindContentData()
         networkService = apiService
-        fetchContentInfo(apiService)
+
+        guard let service = apiService else {
+            self.alertMessage.value = "APIService is not vaild. Please try refresh it."
+            return
+        }
+        fetchContentInfo(service)
     }
     
     // MARK: Fetch remote data
@@ -67,17 +73,22 @@ class ListViewModel {
             .subscribe(onNext: { content in
                 NSLog("current thread: %@, in file: %@, function: %@", Thread.current, #file, #function)
                 
-                // gain listData which is from content.rows and will show in UITableview.
-                if let listData = content?.rows {
-                    self.listData.value = listData.filter {
-                        // If all fields are nil, filter out this element
-                        return ($0.title != nil) || ($0.descriptionField != nil) || ($0.imageHref != nil)
-                    }
-                }
-                
                 // gain title value
                 if let title = content?.title {
                     self.title.value = title
+                }
+
+                // gain listData which is from content.rows and will show in UITableview.
+                if let listData = content?.rows {
+                    let rows = listData.filter {
+                        // If all fields are nil, filter out this element
+                        return ($0.title != nil) || ($0.descriptionField != nil) || ($0.imageHref != nil)
+                    }
+                    if rows.isEmpty {
+                        self.alertMessage.value = "0 data found."
+                        return
+                    }
+                    self.listData.value = rows
                 }
             }, onError: nil, onCompleted: nil, onDisposed: nil)
             .disposed(by: self.disposeBag)
